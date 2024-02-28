@@ -1,33 +1,44 @@
-const express = require('express');
-const mysql = require('mysql');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mysql = require("mysql2/promise");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
 
 const app = express();
+app.use(bodyParser.json());
+app.use(cors());
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'your_mysql_username',
-  password: 'your_mysql_password',
-  database: 'my_database'
+const pool = mysql.createPool({
+  host: "localhost",
+  user: "cuan-user",
+  password: "02gQqg[-p0kxQBW-",
+  database: "cuan-abis",
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL: ' + err.stack);
-    return;
-  }
-  console.log('Connected to MySQL as id ' + connection.threadId);
-});
+app.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
 
-app.get('/', (req, res) => {
-  connection.query('SELECT * FROM my_table', (error, results, fields) => {
-    if (error) {
-      console.error('Error querying MySQL: ' + error.stack);
-      return;
+  try {
+    const [rows] = await pool.query("SELECT * FROM user WHERE email = ?", [
+      email,
+    ]);
+    if (rows.length > 0) {
+      return res.status(400).json({ message: "User already exists" });
     }
-    res.json(results);
-  });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query(
+      "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
+      [username, email, hashedPassword]
+    );
+
+    return res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 app.listen(3000, () => {
-  console.log('Express server listening on port 3000');
+  console.log("Server is running on port 3000");
 });
