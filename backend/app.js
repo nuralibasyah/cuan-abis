@@ -153,8 +153,8 @@ app.get('/:id/income_sum/:month', async (req, res) => {
           `SELECT SUM(jumlah_masuk) AS total_income 
            FROM pemasukan 
            WHERE id_user = ? 
-           AND MONTH(timestamp) = ? 
-           GROUP BY MONTH(timestamp)`,
+           AND MONTH(tanggal_masuk) = ? 
+           GROUP BY MONTH(tanggal_masuk)`,
           [userId, month]
       );
 
@@ -179,8 +179,8 @@ app.get('/:id/expense_sum/:month', async (req, res) => {
           `SELECT SUM(jumlah_keluar) AS total_expense 
            FROM pengeluaran 
            WHERE id_user = ? 
-           AND MONTH(timestamp) = ? 
-           GROUP BY MONTH(timestamp)`,
+           AND MONTH(tanggal_keluar) = ? 
+           GROUP BY MONTH(tanggal_keluar)`,
           [userId, month]
       );
 
@@ -194,6 +194,42 @@ app.get('/:id/expense_sum/:month', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// GET METHOD SELISIH
+app.get('/:id/selisih/:month', async (req, res) => {
+  const userId = req.params.id;
+  const month = req.params.month;
+
+  try {
+      const [rows] = await pool.execute(
+          `SELECT 
+          (SELECT SUM(jumlah_masuk) AS total_income
+                 FROM pemasukan 
+                 WHERE id_user = ? 
+                 AND MONTH(tanggal_masuk) = ? 
+                 GROUP BY MONTH(tanggal_masuk)) - 
+          (SELECT SUM(jumlah_keluar) AS total_expense 
+                 FROM pengeluaran 
+                 WHERE id_user = ? 
+                 AND MONTH(tanggal_keluar) = ? 
+                 GROUP BY MONTH(tanggal_keluar)) AS selisih`,
+          [userId, month, userId, month]
+      );
+
+      if (rows.length > 0) {
+          res.json({ 
+              selisih: rows[0].selisih
+          });
+      } else {
+          res.status(404).json({ error: 'No data found' });
+      }
+
+      await connection.end();
+  } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 app.listen(3000, () => {
   console.log("Express server listening on port 3000");
