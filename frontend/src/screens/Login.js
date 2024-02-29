@@ -16,7 +16,6 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 
-
 export default function Login({ navigation }) {
   const [username, setUserName] = useState(" ");
   const [userNameVerify, setUserNameVerify] = useState(false);
@@ -29,37 +28,11 @@ export default function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
-    "Rubik": require("../fonts/Rubik-Regular.ttf"),
+    Rubik: require("../fonts/Rubik-Regular.ttf"),
     "Rubik-Light": require("../fonts/Rubik-Light.ttf"),
     "Rubik-Bold": require("../fonts/Rubik-Bold.ttf"),
     "Rubik-SemiBold": require("../fonts/Rubik-SemiBold.ttf"),
   });
-
-
-  const handleRegister = () => {
-    const userData = {
-      username: username,
-      email: email,
-      password: password,
-    };
-    if (userNameVerify && emailVerify && passwordVerify) {
-      axios
-        .post("http://localhost:3000/registration", userData)
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.status == "ok") {
-            Alert.alert("Register Done!");
-            setModalVisible(false);
-          } else {
-            Alert.alert(JSON.stringify(res.data));
-          }
-        })
-
-        .catch((e) => console.log(e));
-    } else {
-      Alert.alert("Lengkapi data anda!");
-    }
-  };
 
   const handleUserName = (n) => {
     console.log(n.nativeEvent.text);
@@ -68,17 +41,6 @@ export default function Login({ navigation }) {
     setUserNameVerify(false);
     if (userNameVar.length > 4) {
       setUserNameVerify(true);
-    }
-  };
-
-  const handleEmail = (e) => {
-    console.log(e.nativeEvent.text);
-    const emailVar = e.nativeEvent.text;
-    setEmail(emailVar);
-    setEmailVerify(false);
-    if (/^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{1,}$/.test(emailVar)) {
-      setEmail(emailVar);
-      setEmailVerify(true);
     }
   };
 
@@ -93,23 +55,10 @@ export default function Login({ navigation }) {
     }
   };
 
-  const handlePasswordConfirm = (p1) => {
-    console.log(p1.nativeEvent.text);
-    const passwordVarConfirm = p1.nativeEvent.text;
-    setPasswordConfirm(passwordVarConfirm);
-    setPasswordVerifyConfirm(true);
-  };
-
   const toggleShowPasswordLogin = () => {
     setShowPassword(!showPassword);
     setPasswordVerify(true);
   };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-    setPasswordVerify(true);
-  };
-
   const handleLogin = () => {
     const userData = {
       username: username,
@@ -136,56 +85,64 @@ export default function Login({ navigation }) {
   return (
     <ImageBackground resizeMode="cover" style={styles.background}>
       <SafeAreaView style={styles.container}>
-          <ScrollView>
-            <KeyboardAvoidingView behavior={"position"} enabled={true}>
-              <View style={styles.deskripsiGroup}>
+        <ScrollView>
+          <KeyboardAvoidingView behavior={"position"} enabled={true}>
+            <View style={styles.deskripsiGroup}>
+              <View>
+                <Text style={styles.title}>Masuk ke Akun</Text>
+              </View>
+              <SafeAreaView style={styles.form}>
                 <View>
-                  <Text style={styles.title}>Masuk ke Akun</Text>
+                  <View style={styles.inputBoxLogin}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Username atau Email"
+                      onChange={(n) => handleUserName(n)}
+                    />
+                  </View>
                 </View>
-                <SafeAreaView style={styles.form}>
-                  <View>
-                    <View style={styles.inputBoxLogin}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Username atau Email"
-                        onChange={(n) => handleUserName(n)}
-                      />
-                    </View>
+                <View>
+                  <View style={styles.inputBoxLogin}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Kata Sandi"
+                      secureTextEntry={!showPassword}
+                      onChange={(p) => handlePassword(p)}
+                    />
+                    <MaterialCommunityIcons
+                      name={!showPassword ? "eye-off" : "eye"}
+                      size={24}
+                      color="#aaa"
+                      onPress={toggleShowPasswordLogin}
+                      style={styles.icon}
+                    />
                   </View>
-                  <View>
-                    <View style={styles.inputBoxLogin}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Kata Sandi"
-                        secureTextEntry={!showPassword}
-                        onChange={(p) => handlePassword(p)}
-                      />
-                      <MaterialCommunityIcons
-                        name={!showPassword ? "eye-off" : "eye"}
-                        size={24}
-                        color="#aaa"
-                        onPress={toggleShowPasswordLogin}
-                        style={styles.icon}
-                      />
-                    </View>
-                  </View>
-                </SafeAreaView>
-                <View style={styles.buttonGroup}>
-                  <TouchableOpacity
-                    style={styles.buttonLogin}
-                    onPress={handleLogin}
+                </View>
+              </SafeAreaView>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={styles.buttonLogin}
+                  onPress={handleLogin}
+                >
+                  <Text
+                    style={{
+                      justifyContent: "center",
+                      color: "#ffff",
+                      fontWeight: 600,
+                    }}
                   >
-                    <Text style={{justifyContent: "center", color:"#ffff", fontWeight:600}}>Masuk</Text>
+                    Masuk
+                  </Text>
+                </TouchableOpacity>
+                <View style={styles.buttonSignup}>
+                  <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    <Text style={styles.textButtonSignup}>Buat Akun Baru</Text>
                   </TouchableOpacity>
-                  <View style={styles.buttonSignup}>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}>
-                      <Text style={styles.textButtonSignup}>Buat Akun Baru</Text>
-                    </TouchableOpacity>
-                  </View>
                 </View>
               </View>
-            </KeyboardAvoidingView>
-          </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
+        </ScrollView>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -201,6 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    display: "grid",
   },
   form: {
     flexDirection: "column",
@@ -211,10 +169,10 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "90%",
+    width: 250,
     fontFamily: "Rubik-Light",
     fontSize: 16,
-    color:"#64748b"
+    color: "#64748b",
   },
   inputBox: {
     flexDirection: "row",
@@ -224,34 +182,16 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingHorizontal: 20,
     height: 40,
-    width: 250,
   },
   inputBoxLogin: {
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 14,
-    paddingHorizontal: 10,
     height: 40,
     width: 250,
-    borderWidth:1,
-    borderRadius:8,
-    borderColor:"#e2e8f0",
-
-  },
-
-llertFalse: {
-    color: "red",
-    fontSize: 10,
-    marginLeft: 10,
-    marginTop: -10,
-    fontFamily: "Rubik-Light",
-  },
-  inputAllertFalsePassword: {
-    color: "red",
-    fontSize: 10,
-    marginLeft: 10,
-    marginTop: -10,
-    fontFamily: "Rubik-Light",
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: "#e2e8f0",
   },
   icon: {
     marginRight: 10,
@@ -287,7 +227,7 @@ llertFalse: {
     flex: 1,
     flexDirection: "column",
     backgroundColor: "#fff",
-    alignItems:"center",
+    alignItems: "center",
     borderRadius: 20,
   },
   buttonGroup: {
@@ -300,10 +240,6 @@ llertFalse: {
     fontSize: 20,
     textAlign: "center",
     color: "#fff",
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 4,
-    shadowOpacity: 0.25,
   },
   textButtonSignup: {
     fontFamily: "Rubik",
@@ -321,5 +257,4 @@ llertFalse: {
     borderRadius: 40,
     backgroundColor: "#F8AD3C",
   },
-
 });
