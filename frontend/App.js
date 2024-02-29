@@ -6,7 +6,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import Login from "./src/screens/Login";
+import Login from "./src/screens/MainPage";
 import Register from "./src/screens/Register";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
