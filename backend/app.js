@@ -11,8 +11,10 @@ app.use(cors());
 
 const pool = mysql.createPool({
   host: "localhost",
-  user: "cuan-user",
-  password: "02gQqg[-p0kxQBW-",
+  //user: "cuan-user",
+  //password: "02gQqg[-p0kxQBW-",
+  user: "root",
+  password: "",
   database: "cuan-abis",
 });
 
@@ -87,7 +89,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// METHOD POST ADD_INCOME
+// POST METHOD ADD_INCOME
 app.post("/:id/add_income", verifyToken, async (req, res) => {
   const { jumlah, kategori, tanggal, note } = req.body;
   const userId = req.params.id;
@@ -103,7 +105,7 @@ app.post("/:id/add_income", verifyToken, async (req, res) => {
 
     // Insert the income into the 'income' table
     await pool.query(
-      "INSERT INTO pemasukan (jumlah_masuk, kategori_masuk, tanggal_masuk, note_masuk) VALUES (?, ?, ?, ?)",
+      "INSERT INTO pemasukan (id_user, jumlah_masuk, kategori_masuk, tanggal_masuk, note_masuk) VALUES (?, ?, ?, ?)",
       [userId, jumlah, kategori, tanggal, note]
     );
 
@@ -111,6 +113,85 @@ app.post("/:id/add_income", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("Error adding income:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// POST METHOD ADD_EXPENSE
+app.post("/:id/add_expense", verifyToken, async (req, res) => {
+  const { jumlah, kategori, pembayaran, tanggal, note } = req.body;
+  const userId = req.params.id;
+
+  try {
+    // Check if the user exists and is the owner of the income
+    const [user] = await pool.query("SELECT * FROM user WHERE id = ?", [
+      userId,
+    ]);
+    if (!user || user.id !== req.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Insert the income into the 'income' table
+    await pool.query(
+      "INSERT INTO pengeluaran (d_user, jumlah_keluar, kategori_keluar, kategori_bayar, tanggal_keluar, note) VALUES (?, ?, ?, ?, ?)",
+      [userId, jumlah, kategori, pembayaran, tanggal, note]
+    );
+
+    return res.status(201).json({ message: "Expense added successfully" });
+  } catch (error) {
+    console.error("Error adding income:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// GET METHOD SUM_INCOME
+app.get('/:id/income_sum/:month', async (req, res) => {
+  const userId = req.params.id;
+  const month = req.params.month;
+
+  try {
+      const [rows] = await pool.execute(
+          `SELECT SUM(jumlah_masuk) AS total_income 
+           FROM pemasukan 
+           WHERE id_user = ? 
+           AND MONTH(timestamp) = ? 
+           GROUP BY MONTH(timestamp)`,
+          [userId, month]
+      );
+
+      if (rows.length > 0) {
+          res.json({ totalIncome: rows[0].total_income });
+      } else {
+          res.status(404).json({ error: 'No data found' });
+      }
+
+  } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET METHOD SUM EXPENSE
+app.get('/:id/expense_sum/:month', async (req, res) => {
+  const userId = req.params.id;
+  const month = req.params.month;
+
+  try {
+      const [rows] = await pool.execute(
+          `SELECT SUM(jumlah_keluar) AS total_expense 
+           FROM pengeluaran 
+           WHERE id_user = ? 
+           AND MONTH(timestamp) = ? 
+           GROUP BY MONTH(timestamp)`,
+          [userId, month]
+      );
+
+      if (rows.length > 0) {
+          res.json({ totalExpense: rows[0].total_expense });
+      } else {
+          res.status(404).json({ error: 'No data found' });
+      }
+
+  } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
   }
 });
 
