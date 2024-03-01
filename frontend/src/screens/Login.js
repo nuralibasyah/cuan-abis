@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,22 +11,15 @@ import {
   ImageBackground,
   Alert,
 } from "react-native";
-import React, { useState } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import axios from "axios";
+import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 
-export default function Login({ navigation }) {
-  const [username, setUserName] = useState(" ");
-  const [userNameVerify, setUserNameVerify] = useState(false);
-  const [email, setEmail] = useState(" ");
-  const [emailVerify, setEmailVerify] = useState(false);
-  const [password, setPassword] = useState(" ");
-  const [passwordVerify, setPasswordVerify] = useState(false);
-  const [passwordConfirm, setPasswordConfirm] = useState(" ");
-  const [passwordVerifyConfirm, setPasswordVerifyConfirm] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+
+export default function Login ( { navigation } ) {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const [fontsLoaded, fontError] = useFonts({
     Rubik: require("../fonts/Rubik-Regular.ttf"),
@@ -34,51 +28,20 @@ export default function Login({ navigation }) {
     "Rubik-SemiBold": require("../fonts/Rubik-SemiBold.ttf"),
   });
 
-  const handleUserName = (n) => {
-    console.log(n.nativeEvent.text);
-    const userNameVar = n.nativeEvent.text;
-    setUserName(userNameVar);
-    setUserNameVerify(false);
-    if (userNameVar.length > 4) {
-      setUserNameVerify(true);
-    }
-  };
-
-  const handlePassword = (p) => {
-    console.log(p.nativeEvent.text);
-    const passwordVar = p.nativeEvent.text;
-    setPassword(passwordVar);
-    setPasswordVerify(false);
-    if (passwordVar.length > 4) {
-      setPassword(passwordVar);
-      setPasswordVerify(true);
-    }
-  };
-
-  const toggleShowPasswordLogin = () => {
-    setShowPassword(!showPassword);
-    setPasswordVerify(true);
-  };
   const handleLogin = () => {
     const userData = {
-      username: username,
+      email: email,
       password: password,
     };
-    axios
-      .post("http://localhost:3000/login", userData)
-      .then((res) => {
-        const { token, email } = res.data;
-        AsyncStorage.setItem("token", token);
-        AsyncStorage.setItem("email", email);
-        navigation.navigate("Leaderboard");
-        if (res.data.status == "ok") {
-          Alert.alert("Selamat Bermain!");
-        } else {
-          Alert.alert(JSON.stringify(res.data));
-        }
+    console.log(userData);
+    axios.post('https://00a6-202-159-47-22.ngrok-free.app/login', userData)
+      .then(response => {
+        navigation.navigate("Main Page");
+        // Handle successful login
       })
-      .catch((error) => {
-        Alert.alert("Coba Lagi!");
+      .catch(error => {
+        console.error(error);
+        // Handle login error
       });
   };
 
@@ -87,35 +50,31 @@ export default function Login({ navigation }) {
       <SafeAreaView style={styles.container}>
         <ScrollView>
           <KeyboardAvoidingView behavior={"position"} enabled={true}>
-            <View style={styles.deskripsiGroup}>
+          <View style={styles.deskripsiGroup}>
               <View>
                 <Text style={styles.title}>Masuk ke Akun</Text>
               </View>
               <SafeAreaView style={styles.form}>
                 <View>
                   <View style={styles.inputBoxLogin}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Username atau Email"
-                      onChange={(n) => handleUserName(n)}
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    onChangeText={text => setEmail(text)}
+                    value={email}
                     />
                   </View>
                 </View>
                 <View>
                   <View style={styles.inputBoxLogin}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Kata Sandi"
-                      secureTextEntry={!showPassword}
-                      onChange={(p) => handlePassword(p)}
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    onChangeText={text => setPassword(text)}
+                    value={password}
+                    secureTextEntry
                     />
-                    <MaterialCommunityIcons
-                      name={!showPassword ? "eye-off" : "eye"}
-                      size={24}
-                      color="#aaa"
-                      onPress={toggleShowPasswordLogin}
-                      style={styles.icon}
-                    />
+                    
                   </View>
                 </View>
               </SafeAreaView>
@@ -135,18 +94,43 @@ export default function Login({ navigation }) {
                   </Text>
                 </TouchableOpacity>
                 <View style={styles.buttonSignup}>
-                  <TouchableOpacity onPress={() => setModalVisible(true)}>
+                  <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                     <Text style={styles.textButtonSignup}>Buat Akun Baru</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
+
           </KeyboardAvoidingView>
         </ScrollView>
       </SafeAreaView>
     </ImageBackground>
+
+    
+    // <View style={styles.container}>
+    //   <TextInput
+    //     style={styles.input}
+    //     placeholder="Email"
+    //     onChangeText={text => setEmail(text)}
+    //     value={email}
+    //   />
+    //   <TextInput
+    //     style={styles.input}
+    //     placeholder="Password"
+    //     onChangeText={text => setPassword(text)}
+    //     value={password}
+    //     secureTextEntry
+    //   />
+    //   <TouchableOpacity style={styles.button} onPress={handleLogin}>
+    //     <Text style={styles.buttonText}>Login</Text>
+    //   </TouchableOpacity>
+    //   <TouchableOpacity style={styles.button} onPress={() => console.log('Forgot Password')}>
+    //     <Text style={styles.buttonText}>Forgot Password?</Text>
+    //   </TouchableOpacity>
+    // </View>
   );
-}
+};
+
 const styles = StyleSheet.create({
   background: {
     backgroundColor: "#00A39D",

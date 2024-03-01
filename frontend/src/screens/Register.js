@@ -16,7 +16,11 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from '@react-navigation/native';
+
 export default function Register() {
+  const navigation = useNavigation();
+
   const [username, setUserName] = useState(" ");
   const [userNameVerify, setUserNameVerify] = useState(false);
   const [email, setEmail] = useState(" ");
@@ -40,6 +44,7 @@ export default function Register() {
           console.log(res.data);
           if (res.data.status == "ok") {
             Alert.alert("Register Done!");
+            navigation.navigate("Login");
           } else {
             Alert.alert(JSON.stringify(res.data));
           }
@@ -219,7 +224,6 @@ export default function Register() {
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.buttonCancel}
-                          onPress={() => setModalVisible(!modalVisible)}
                         >
                           <Text
                             style={{

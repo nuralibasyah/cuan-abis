@@ -143,6 +143,32 @@ app.post("/:id/add_expense", verifyToken, async (req, res) => {
   }
 });
 
+// GET METHOD READ_EXPENSE
+app.get('/:id/expenselist/:month', async (req, res) => {
+  const userId = req.params.id;
+  const month = req.params.month;
+
+  try {
+      const [rows] = await pool.execute(
+          `SELECT id, jumlah_keluar, kategori_keluar, tanggal_keluar, note, kategori_bayar
+           FROM pengeluaran 
+           WHERE id_user = ? 
+           AND MONTH(tanggal_keluar) = ?
+           ORDER BY tanggal_keluar DESC`,
+          [userId, month]
+      );
+
+      if (rows.length > 0) {
+          res.json({ totalIncome: rows[0].total_income });
+      } else {
+          res.status(404).json({ error: 'No data found' });
+      }
+
+  } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET METHOD SUM_INCOME
 app.get('/:id/income_sum/:month', async (req, res) => {
   const userId = req.params.id;
