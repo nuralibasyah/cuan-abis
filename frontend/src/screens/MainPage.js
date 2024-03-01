@@ -1,68 +1,112 @@
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  ScrollView,
+  KeyboardAvoidingView,
+  ImageBackground,
+  Alert,
+  Image,
+} from "react-native";
 import { useActiveMenu } from "react-active-menu";
-import "./styles.css";
 
-export default function App() {
+export default function MainPage({ navigation }) {
   const { registerSection, registerTrigger } = useActiveMenu({
     offset: 60,
-    smooth: true
+    smooth: true,
   });
 
   return (
-    <>
-      <nav className="triggers">
-        <ul>
-          <li>
-            <button ref={registerTrigger("section-1")} type="button">
-              Section 1
-            </button>
-          </li>
-          <li>
-            <button ref={registerTrigger("section-2")} type="button">
-              Section 2
-            </button>
-          </li>
-          <li>
-            <button ref={registerTrigger("section-3")} type="button">
-              Section 3
-            </button>
-          </li>
-          <li>
-            <button ref={registerTrigger("section-4")} type="button">
-              Section 4
-            </button>
-          </li>
-          <li>
-            <button ref={registerTrigger("section-5")} type="button">
-              Section 5
-            </button>
-          </li>
-          <li>
-            <button ref={registerTrigger("section-6")} type="button">
-              Section 6
-            </button>
-          </li>
-        </ul>
-      </nav>
-      <div className="sections">
-        <section ref={registerSection("section-1")}>
-          <h2>Section 1</h2>
-        </section>
-        <section ref={registerSection("section-2")}>
-          <h2>Section 2</h2>
-        </section>
-        <section ref={registerSection("section-3")}>
-          <h2>Section 3</h2>
-        </section>
-        <section ref={registerSection("section-4")}>
-          <h2>Section 4</h2>
-        </section>
-        <section ref={registerSection("section-5")}>
-          <h2>Section 5</h2>
-        </section>
-        <section ref={registerSection("section-6")}>
-          <h2>Section 6</h2>
-        </section>
-      </div>
-    </>
+    <SafeAreaView style={styles.background}>
+      <View style={styles.Header}>
+        <Text style={{ color: "white", }}>Catatan Keuangan</Text>
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={require("../assets/LogOut.png")}
+        />
+      </View>
+      <View style={styles.ActiveMenu}>
+        <Text>Pengeluaran</Text>
+        <Text>Pemasukan</Text>
+        <Text>Laporan</Text>
+      </View>
+      <View style={styles.Kalkulasi}>
+        <View style={styles.Value}></View>
+        <View style={styles.Value}></View>
+      </View>
+      <ScrollView>
+        <View style={styles.Rekap}></View>
+      </ScrollView>
+      <TouchableOpacity style={styles.buttonCatatan} onPress={navigation}>
+        <Text
+          style={{
+            justifyContent: "center",
+            color: "#ffff",
+            fontWeight: 600,
+          }}
+        >
+          Buat Catatan Baru
+        </Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "#00A39D",
+    flex: 1,
+    alignItems: "center",
+  },
+  Header: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    margin: 10,
+  },
+  ActiveMenu: {
+    height: 27,
+    width: 325,
+    backgroundColor: "#f1f1f1",
+    borderRadius: 50,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+  },
+  Kalkulasi: {
+    width: "100%",
+    height: 80,
+    backgroundColor: "#f1f1f1",
+    marginTop: 30,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  Value: {
+    height: 60,
+    width: 170,
+    backgroundColor: "#00A39D",
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  Rekap: {
+    width: "100%",
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: "#f1f1f1",
+  },
+  buttonCatatan: {
+    width: "90%",
+    height: 55,
+    backgroundColor: "#F9B754",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
